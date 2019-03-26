@@ -2,75 +2,36 @@ import request from '@/utils/request'
 import requestImg from '@/utils/requestImg'
 
 //打卡点列表
-export const pointList = (params) => {
-    request({
-        url: '/Admin/queryPointList',
-        method: 'post',
-        data: {
-                    timestamp: "1",
-                    SecretId: "3",
-                    Signature: "4",
-                    Data: params
-             }
+export function pointList(params){
+    return request({
+        url: "/Clock/GetClocks",
+        method: "post",
+        data: params
     })
 }
 
 //打卡点详情
-export const pointDetail = (Id) => {
-    request({
-        url: '/Admin/pointDetail',
+export function pointDetail(Id){
+    return request({
+        url: "/Clock/GetClockById?id="+Id,
         method: 'post',
-        data: {
-                    timestamp: "1",
-                    SecretId: "3",
-                    Signature: "4",
-                    Data: {
-                        Id
-                    }
-             }
     })
 }
 
-//添加打卡点
-export const createPoint = (params) => {
-    requestImg({
-        url: '/Admin/createPoint',
+//添加或修改打卡点
+export function savePoint(params){
+    return requestImg({
+        url: '/Clock/SaveClock',
         method: 'post',
-        data: {
-                    timestamp: "1",
-                    SecretId: "3",
-                    Signature: "4",
-                    Data: params
-             }
-    })
-}
-
-//修改打卡点
-export const editPoint = (params) => {
-    requestImg({
-        url: '/Admin/editPoint',
-        method: 'post',
-        data: {
-                    timestamp: "1",
-                    SecretId: "3",
-                    Signature: "4",
-                    Data: params
-             }
+        data: params
     })
 }
 
 //删除打卡点
-export const deletePoint = (Id) => {
-    request({
-        url: '/Admin/deletePoint',
+export function deletePoint(Id){
+    return request({
+        url: "/Clock/DeleteClock?id="+Id,
         method: 'post',
-        data: {
-                    timestamp: "1",
-                    SecretId: "3",
-                    Signature: "4",
-                    Data: {
-                        Id
-                    }
-             }
     })
 }
+

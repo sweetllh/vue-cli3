@@ -13,6 +13,7 @@ const TagList = resolve => require(['./views/tagManage/tagList.vue'],resolve);
 Vue.use(Router)
 
 export default new Router({
+  //mode: 'history',
   routes: [
     {
       path: '*',
@@ -45,7 +46,7 @@ export default new Router({
       iconCls  : 'el-icon-document',   //图标样式class
       children : [
           { path: '/pointList', component: PointList, name: '打卡点列表'},
-          { path: '/editPoint', component: EditPoint, name: '添加/修改打卡点'},
+          { path: '/editPoint', component: EditPoint, name: '添加/修改打卡点',hidden: true},
          
       ]
     },
@@ -60,5 +61,12 @@ export default new Router({
           { path: '/tagList', component: TagList, name: '标签列表'},
       ]
     }
-  ]
+  ],
+  // scrollBehavior (to, from, savedPosition) {
+  //   if (savedPosition) {
+  //     return savedPosition
+  //   } else {
+  //     return { x: 0, y: 0 }
+  //   }
+  // }
 })

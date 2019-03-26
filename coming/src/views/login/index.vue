@@ -6,11 +6,11 @@
 					<p>后台管理系统</p>
 				</div>
         <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="demo-ruleForm">
-          <el-form-item prop="account">
-            <el-input v-model="ruleForm.account" size="small" placeholder="请输入账号"></el-input>
+          <el-form-item prop="LoginName">
+            <el-input v-model="ruleForm.LoginName" size="small" placeholder="请输入账号"></el-input>
           </el-form-item>
-          <el-form-item prop="password">
-            <el-input v-model="ruleForm.password" type="password" size="small" @keyup.enter.native="submitForm()"
+          <el-form-item prop="PassWord">
+            <el-input v-model="ruleForm.PassWord" type="password" size="small" @keyup.enter.native="submitForm()"
             	placeholder="请输入密码，区分大小写"></el-input>
           </el-form-item>
           <!--<el-form-item prop="mobileCode">
@@ -36,7 +36,7 @@
 </template>
 
 <script>
-  	//import { login } from '@/api/login'
+  	import { login } from '@/api/login'
   	import { getToken, setToken, setUserInfo } from '@/utils/auth'
   	import { validateAccount, validatePwd, validateCode } from '@/utils/validate'
     export default {
@@ -48,15 +48,15 @@
 	          getCodeFlag: false,
 	          time: 60,
 	          ruleForm: {
-	            account: '',//账号
-	            password: '',//密码
+	            LoginName: '',//账号
+	            PassWord: '',//密码
 	            //mobileCode: '' ,//验证码
 	          },
 	          rules: {
-	            account: [
+	            LoginName: [
 	              { validator: validateAccount, trigger: 'blur' },
 	            ],
-	            password: [
+	            PassWord: [
 	              { validator: validatePwd, trigger: 'blur' }
 	            ],
 	            /*mobileCode : [
@@ -66,12 +66,7 @@
 	        }
 		 },
 	     watch: {
-		    /*$route: {
-		      handler: function(route) {
-		        this.redirect = route.query && route.query.redirect
-		      },
-		      immediate: true
-		    }*/
+		    
 		  },
 	      created(){
 	      	
@@ -87,27 +82,27 @@
 	        },
 	        /*超时记时*/
 	        timeOut(time) {
-		      var _this = this;
-		      setInterval(function() {
-		        _this.time = time--;
-		        if (_this.time <= 0) {
-		          _this.getCodeFlag = true;
-		        }
-		      }, 1000);
-		    },
+						var _this = this;
+						setInterval(function() {
+							_this.time = time--;
+							if (_this.time <= 0) {
+								_this.getCodeFlag = true;
+							}
+						}, 1000);
+					},
 		    	//登陆按钮
 		     submitForm() {
 		      	const that = this;
 		      	this.$refs.ruleForm.validate(valid => {
 			        if (valid) {
-                        this.loading = true;
-                        this.$router.push({ path: '/dashboard' });
-				        // this.Login(this.ruleForm).then(() => {
-				        // 	this.loading = false
-				        //     this.$router.push({ path: '/dashboard' });
-				        // }).catch(() => {
-				        //     this.loading = false
-				        // })
+								this.loading = true;
+								//this.$router.push({ path: '/dashboard' });
+				        this.Login(this.ruleForm).then(() => {
+				        		this.loading = false
+				            this.$router.push({ path: '/dashboard' });
+				        }).catch(() => {
+				            this.loading = false
+				        })
 				        
 			        } else {
 			          console.log('error submit!!')
@@ -119,10 +114,9 @@
 		    //登陆
 		    Login(userInfo) {
 		      const that = this;
-		      const User = userInfo.account.trim();
 		      return new Promise((resolve, reject) => {
-		        login(User, userInfo.password).then(response => {
-		          const data = response.Data;
+		        login(userInfo).then(response => {
+		          const data = response.data;
 		          setUserInfo(data);
 		          setToken(data.Token);
 		          resolve()

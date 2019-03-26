@@ -6,9 +6,9 @@
           <div class="main" :class="{'content-collapse':collapse}">
             <div class="container" >
               <transition name="move" mode="out-in">
-                <!--<keep-alive>-->
+                <!-- <keep-alive> -->
                   <router-view></router-view>
-                <!--</keep-alive>-->
+                <!-- </keep-alive> -->
               </transition>
             </div>
           </div>

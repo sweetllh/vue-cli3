@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie'
 
-const TokenKey = 'customer-Token'
-const userInfo = "AXP-customerInfo"
+const TokenKey = 'Login-Token'
+const userInfo = "Coming-customerInfo"
 
 export function getToken() {
   return Cookies.get(TokenKey)

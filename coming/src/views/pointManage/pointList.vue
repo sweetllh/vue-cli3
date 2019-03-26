@@ -3,39 +3,39 @@
         <div class="buttonList">
             <div class="handel">
                 <el-button type="primary" @click="$router.push({path:'/editPoint'})">添加打卡点</el-button>
-                <el-button type="info">删除打卡点</el-button>
+                <!-- <el-button type="info">删除打卡点</el-button> -->
             </div>
             <div class="seachList">
                 <div>
-                    <el-select v-model="formData.province" placeholder="省">
+                    <el-select v-model="formData.ProvinceCode" filterable  placeholder="省" @change="provinceChange">
                         <el-option
-                        v-for="item in $bus.typeList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="item in $bus.provinceArr"
+                        :key="item.AreaCode"
+                        :label="item.AreaName"
+                        :value="item.AreaCode">
                         </el-option>
                     </el-select>
-                    <el-select v-model="formData.city" placeholder="市">
+                    <el-select v-model="formData.CityCode" filterable  placeholder="市" @change="cityChange">
                         <el-option
-                        v-for="item in $bus.typeList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="item in cityArr"
+                        :key="item.AreaCode"
+                        :label="item.AreaName"
+                        :value="item.AreaCode">
                         </el-option>
                     </el-select>
-                    <el-select v-model="formData.area" placeholder="区">
+                    <el-select v-model="formData.DistrictCode" filterable  placeholder="区">
                         <el-option
-                        v-for="item in $bus.typeList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="item in districtArr"
+                        :key="item.AreaCode"
+                        :label="item.AreaName"
+                        :value="item.AreaCode">
                         </el-option>
                     </el-select>
                 </div>
                 <div>
-                    <el-select v-model="formData.type" placeholder="全部类别">
+                    <el-select v-model="formData.Category" placeholder="全部类别">
                         <el-option
-                        v-for="item in $bus.typeList"
+                        v-for="item in $bus.categoryList"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -43,40 +43,46 @@
                     </el-select>
                     <span class="clockNum">
                         打卡量：
-                        <el-input type="text" v-model="formData.minNum" autocomplete="off" style="max-width:127px" ></el-input>
+                        <el-input-number v-model="formData.ClockCountMin" autocomplete="off" :min="0" :controls="false"
+                            style="max-width:127px" ></el-input-number>
                         至
-                        <el-input type="text" v-model="formData.maxNum" autocomplete="off" style="max-width:127px" ></el-input>
+                        <el-input-number v-model="formData.ClockCountMax" autocomplete="off" :min="0" :controls="false"
+                            style="max-width:127px" ></el-input-number>
                     </span>
-                    <el-button type="primary"  icon="el-icon-search">搜索</el-button>
+                    <el-button type="primary"  icon="el-icon-search" @click="queryPointList">搜索</el-button>
                 </div>
                 
                 
             </div>
         </div>
         <div class="table">
-		    <el-table :data="tableData.Details" :height="$bus.clientHeight - 231" size="medium "
+		    <el-table :data="tableData.data" :height="$bus.clientHeight - 231" size="medium "
 		    	style="width: 100%;" v-loading="isLoading" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="60"></el-table-column>
+                <!-- <el-table-column type="selection" width="60"></el-table-column> -->
                 <el-table-column type="index" label="序号"  align="center" header-align="center" width="60"></el-table-column>
-                <el-table-column label="添加日期" min-width="120" prop="addDate" align="center" header-align="center" class-name="tdImgWrap"></el-table-column>
-                <el-table-column label="类别" min-width="120" prop="type"  align="center" header-align="center"></el-table-column>
-                <el-table-column label="打卡点名称" min-width="180"  prop="pointName"  align="center" header-align="center"></el-table-column>
-                <el-table-column label="蓝牙设备ID" min-width="120" prop="deviceId" align="center" header-align="center">
+                <el-table-column label="添加日期" min-width="120" prop="CreateTimeStr" align="center" header-align="center" class-name="tdImgWrap"></el-table-column>
+                <el-table-column label="类别" min-width="120" prop="Category"  align="center" header-align="center">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.Category | formatCategory}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="打卡点名称" min-width="180"  prop="ClockName"  align="center" header-align="center"></el-table-column>
+                <el-table-column label="蓝牙设备ID" min-width="120" prop="DeviceId" align="center" header-align="center">
                     <template slot-scope="scope">
                         <el-popover trigger="hover" placement="top">
-                        <p style="max-width: 320px;">蓝牙设备ID：{{ scope.row.deviceId }}</p>
+                        <p style="max-width: 320px;">蓝牙设备ID：{{ scope.row.DeviceId }}</p>
                         <div slot="reference" class="name-wrapper">
-                            <el-tag size="medium">{{ scope.row.deviceId }}</el-tag>
+                            <el-tag size="medium">{{ scope.row.DeviceId }}</el-tag>
                         </div>
                         </el-popover>
                     </template>
                 </el-table-column>
-                <el-table-column label="日打卡量" min-width="120" prop="dailyAmount" align="center" header-align="center"></el-table-column>
+                <el-table-column label="日打卡量" min-width="120" prop="DayClockCount" align="center" header-align="center"></el-table-column>
                 <el-table-column label="操作" min-width="120" align="center" header-align="center" fixed="right">
                     <template slot-scope="scope">
-                        <el-button @click.native.prevent="editRow(scope.row.id)" type="text" >修改</el-button>
+                        <el-button @click.native.prevent="editRow(scope.row.Id)" type="text" >修改</el-button>
                         <span class="line"></span>
-                        <el-button  @click.native.prevent="deleteRow(scope.row.id)" type="text">删除</el-button>
+                        <el-button  @click.native.prevent="deleteRow(scope.row.Id)" type="text">删除</el-button>
                     </template>
                 </el-table-column>
 		    </el-table>
@@ -87,7 +93,7 @@
                 :page-sizes="[10, 20, 30, 40, 50, 100, 200, 300]"
                 :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper"
-                :total="tableData.TotalCount">
+                :total="tableData.total">
             </el-pagination>
 		 </div>
 		 
@@ -96,35 +102,22 @@
 
 <script>
 import { pointList , deletePoint } from '@/api/point'
+import { getCity, getDistrict } from '@/api/area'
 export default {
     data(){
         return {
             formData: {
-                 type: '0',
-                 province: '',
-                 city: '',
-                 area: '',
-                 minNum: null,
-                 maxNum: null
+                 Category: '-1',
+                 ProvinceCode: '',
+                 CityCode: '',
+                 DistrictCode: '',
+                 ClockCountMin: 0,
+                 ClockCountMax: 0
             },
-            tableData: {
-                Details:[{
-                    id: 9999,
-                    addDate: '2019-01-02',
-                    deviceId: 123,
-                    type: '风景区',
-                    pointName: '安徽黄山风景名胜区',
-                    dailyAmount: 4690
-                },{
-                    id: 9999,
-                    addDate: '2019-01-02',
-                    deviceId: 123,
-                    type: '风景区',
-                    pointName: '安徽黄山风景名胜区',
-                    dailyAmount: 9999
-                }],
-                TotalCount: 1,
-            },
+            cityArr: [],
+            districtArr: [],
+
+            tableData: {},
             currentPage: 1,
 		 	pageSize: 10,
             multipleSelection: [],
@@ -132,7 +125,7 @@ export default {
         }
     },
     created() {
-       //this.queryPointList()
+        this.queryPointList()
     },
     methods: {
         handleSizeChange(val) {
@@ -159,12 +152,13 @@ export default {
             let params = {
                     ...this.formData,
                     "PageSize": this.pageSize,
-                    "Page": this.currentPage
+                    "Pageindex": this.currentPage
                 }
             const that = this;
-            tagList(params).then(res => {
+            pointList(params).then(res => {
+                //console.log("res",res)
                 that.isLoading = false;
-	       		that.tableData = res.Data;
+	       		that.tableData = res;
             }).catch(error => {
                 that.isLoading = false;
                 //console.log(error)
@@ -189,9 +183,9 @@ export default {
                 this.sureDeletePoint(id);
             }).catch(() => {
                 this.$message({
-                showClose: true,
-                type: 'info',
-                message: '已取消删除'
+                    showClose: true,
+                    type: 'info',
+                    message: '已取消删除'
                 });          
             });
         },
@@ -211,6 +205,25 @@ export default {
                 //console.log(error)
             })
             
+        },
+
+        //省市区三联动
+        provinceChange(){
+            this.formData.CityCode="";
+            this.formData.DistrictCode="";
+            getCity(this.formData.ProvinceCode).then(res => {
+                this.cityArr = res.data
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+        cityChange(){
+            this.formData.DistrictCode="";
+            getDistrict(this.formData.CityCode).then(res => {
+                this.districtArr = res.data
+            }).catch(err => {
+                console.log(err)
+            })
         },
 
     },

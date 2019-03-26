@@ -17,23 +17,4 @@ module.exports = {
         before : app => {
         }
     },
-    // plugins: [
-    // { src: '~plugins/vue-quill-editor', ssr: false }
-    // ],
-    // build: {
-    //     plugins: [
-    //         new webpack.ProvidePlugin({
-    //         'window.Quill': 'quill/dist/quill.js',
-    //         'Quill': 'quill/dist/quill.js'
-    //         })
-    //     ]
-    // },
-    // configureWebpack: {
-    //     plugins: [
-    //     new webpack.ProvidePlugin({
-    //         'window.Quill': 'quill/dist/quill.js',
-    //         'Quill': 'quill/dist/quill.js'
-    //     }),
-    //     ]
-    // }
 }

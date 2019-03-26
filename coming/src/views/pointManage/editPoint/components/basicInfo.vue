@@ -1,75 +1,82 @@
 <template>
     <div class="basicInfo">
         <el-form ref="basicForm" :model="formData" :rules="rules" label-width="100px">
-            <el-form-item label="标签类别：" prop="type">
-                <el-select v-model="formData.type" placeholder="请选择标签类别">
-                    <template v-for="(item,index) in $bus.typeList">
+            <el-form-item label="标签类别：" prop="Category">
+                <el-select v-model="formData.Category" placeholder="请选择标签类别">
+                    <template v-for="(item,index) in $bus.categoryList">
                         <el-option v-if="index !== 0" :key="item.value" :label="item.label" 
                         :value="item.value"></el-option>
                     </template>
                 </el-select>
             </el-form-item>
-            <el-form-item label="地点名称：" prop="pointName">
-                <el-input type="text" v-model="formData.pointName" placeholder="请输入地点名称" 
-                style="max-width: 640px;"  autocomplete="off" ></el-input>
+            <el-form-item label="地点名称：" prop="ClockName">
+                <el-input type="text" v-model="formData.ClockName" placeholder="请输入地点名称" 
+                style="max-width: 703px;"  autocomplete="off" ></el-input>
             </el-form-item>
             <div style="display: flex;">
-                <el-form-item label="地点定位：" prop="province">
-                    <el-select v-model="formData.province" placeholder="省">
-                        <template v-for="(item,index) in $bus.classList">
-                            <el-option v-if="index !== 0" :key="item.value" :label="item.label" 
-                            :value="item.value"></el-option>
-                        </template>
+                <el-form-item label="地点定位：" prop="Province">
+                    <el-select v-model="formData.Province" filterable  placeholder="省" @change="provinceChange">
+                        <el-option
+                        v-for="item in $bus.provinceArr"
+                        :key="item.AreaCode"
+                        :label="item.AreaName"
+                        :value="item.AreaCode">
+                        </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="" label-width="20px" prop="city">
-                    <el-select v-model="formData.city" placeholder="市">
-                        <template v-for="(item,index) in $bus.classList">
-                            <el-option v-if="index !== 0" :key="item.value" :label="item.label" 
-                            :value="item.value"></el-option>
-                        </template>
+                <el-form-item label="" label-width="20px" prop="City">
+                    <el-select v-model="formData.City" filterable  placeholder="市" @change="cityChange">
+                        <el-option
+                        v-for="item in cityArr"
+                        :key="item.AreaCode"
+                        :label="item.AreaName"
+                        :value="item.AreaCode">
+                        </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="" label-width="20px" prop="area">
-                    <el-select v-model="formData.area" placeholder="区">
-                        <template v-for="(item,index) in $bus.classList">
-                            <el-option v-if="index !== 0" :key="item.value" :label="item.label" 
-                            :value="item.value"></el-option>
-                        </template>
+                <el-form-item label="" label-width="20px" prop="District">
+                    <el-select v-model="formData.District" filterable  placeholder="区">
+                        <el-option
+                        v-for="item in districtArr"
+                        :key="item.AreaCode"
+                        :label="item.AreaName"
+                        :value="item.AreaCode">
+                        </el-option>
                     </el-select>
                 </el-form-item>
             </div>
             
-            <el-form-item label="" prop="detailedAddress">
-                <el-input type="textarea" v-model="formData.detailedAddress"  rows="3"  placeholder="详细位置信息"></el-input>
+            <el-form-item label="" prop="AddressDetail">
+                <el-input type="textarea" v-model="formData.AddressDetail"  rows="3"  placeholder="详细位置信息"></el-input>
             </el-form-item>
-            <el-form-item label="" prop="GPSInfo">
-                <el-input type="textarea" style="margin-bottom: 0;" v-model="formData.GPSInfo" 
+            <el-form-item label="" prop="Gps">
+                <el-input type="textarea" style="margin-bottom: 0;" v-model="formData.Gps" 
                     rows="3" placeholder="GPS信息（启动Ruuvi tag后自动获取）"></el-input>
             </el-form-item>
 
-            <el-form-item label="严选指数：" prop="rate">
-                <el-rate v-model="formData.rate" :allow-half=true></el-rate>
+            <el-form-item label="严选指数：" prop="Rate">
+                <el-rate v-model="formData.Rate" :allow-half=true></el-rate>
             </el-form-item>
-            <el-form-item label="添加标签：" class="labelList" prop="labelList">
-                <div v-if="formData.labelList">
-                    <span v-for="(item,index) in formData.labelList" :key="index">{{item}}</span>
+            <el-form-item label="添加标签：" class="Lables" prop="Lables">
+                <div v-if="formData.Lables">
+                    <span v-for="(item,index) in formData.Lables" :key="index">{{item}}</span>
                 </div>
-                <el-input type="hidden" v-model="formData.labelList[0]" class="hidden"></el-input>
+                <el-input type="hidden" v-model="formData.Lables[0]" class="hidden"></el-input>
                 <el-tabs v-model="activeName" type="card" @tab-click="tabChange">
                     <el-tab-pane label="基础标签" name="first">
                         <span v-for="(item,index) in basedLabel" :key="index" @click="addTab(item)" 
-                        :class="formData.labelList.includes(item) ? 'active' : ''" >{{item}}</span>
+                        :class="formData.Lables.includes(item) ? 'active' : ''" >{{item}}</span>
                     </el-tab-pane>
                     <el-tab-pane label="个性化标签" name="second">
                         <span v-for="(item,index) in personalizedLabel" :key="index" @click="addTab(item)"
-                        :class="formData.labelList.includes(item) ? 'active' : ''" >{{item}}</span>
+                        :class="formData.Lables.includes(item) ? 'active' : ''" >{{item}}</span>
                     </el-tab-pane>
                 </el-tabs>
                 
             </el-form-item>
-            <el-form-item label="封面图片：" prop="coverPhoto">
-                <el-input type="hidden" v-model="formData.coverPhoto" class="hidden"></el-input>
+            <el-form-item label="封面图片：" prop="CoverPhoto">
+                <div  class='toolTip'>（上传比例16:9）</div>
+                <el-input type="hidden" v-model="formData.CoverPhoto" class="hidden"></el-input>
                 <el-upload
                     class="picture-uploader"
                     action=""
@@ -78,7 +85,7 @@
                     accept="image/*"
                     :on-change="handleChange"
                     :before-upload="beforePictureUpload">
-                    <img v-if="formData.coverPhoto" :src="formData.coverPhoto" class="picture">
+                    <img v-if="formData.CoverPhoto" :src="formData.CoverPhoto" class="picture">
                     <i v-else class="el-icon-plus picture-uploader-icon"><span class="pictureTip">添加封面图</span></i>
                 </el-upload>
                 <!-- vueCropper 剪裁图片实现-->
@@ -102,6 +109,23 @@
                 </el-dialog>
 
             </el-form-item>
+            <el-form-item label="景点印章：" prop="Postmark">
+                <div  class='toolTip'>（png格式图片）</div>
+                <el-input type="hidden" v-model="formData.Postmark" class="hidden"></el-input>
+                <el-upload
+                    class="picture-uploader"
+                    action=""
+                    :auto-upload="false"
+                    :show-file-list="false"
+                    accept="image/png"
+                    :on-change="postMarkChange"
+                    :before-upload="beforePictureUpload">
+                   
+                    <img v-if="formData.Postmark" :src="formData.Postmark" class="postmarkImg">
+                    <i v-else class="el-icon-plus picture-uploader-icon postMarkIcon"><span class="pictureTip">添加景点印章</span></i>
+                </el-upload>
+            </el-form-item>
+            
             
             <el-form-item class="buttonList">
                 <el-button type="primary" @click="cancelBtn">取消</el-button>
@@ -112,15 +136,18 @@
 </template>
 
 <script>
-import  { VueCropper }  from 'vue-cropper';
-import  { dataURLtoFile } from '@/utils/format'
+import  { VueCropper }  from 'vue-cropper';  
+import { getCity, getDistrict } from '@/api/area';
+import { queryBasedLabel, queryPersonalLabel } from '@/api/tag';
+import { getObjectURL } from '@/utils/format'
 export default {
     name: 'basicInfo',
     props:{
         formData: {
             type: Object,
             default: {}
-        }
+        },
+        id: null
     },
     components: {
         VueCropper,
@@ -128,22 +155,25 @@ export default {
     
     data(){
         return {
-            //formData: {},
+            provinceArr: [],
+            cityArr: [],
+            districtArr: [],
             rules: {
-					type: {  required: true, message: '请选择标签类别', trigger: 'change'  },
-			        pointName: {  required: true, message: '请选择地点名称', trigger: 'change'  },
-                    province: {  required: true, message: '请选择省份', trigger: 'change'  },
-                    city: {  required: true, message: '请选择城市', trigger: 'change'  },
-                    area: {  required: true, message: '请选择区域', trigger: 'change'  },
-                    detailedAddress: {  required: true, message: '请填写详细位置信息', trigger: 'change'  },
-                    GPSInfo: {  required: true, message: '请填写GPS信息', trigger: 'change'  },
-                    rate: {  required: true, message: '请填写严选指数', trigger: 'change'  },
-                    coverPhoto: {  required: true, message: '请上传封面图片', trigger: 'change'  },
-                    labelList: {  required: true, message: '请添加标签', trigger: 'change'  }
+					Category: {  required: true, message: '请选择标签类别', trigger: 'change'  },
+			        ClockName: {  required: true, message: '请选择地点名称', trigger: 'change'  },
+                    Province: {  required: true, message: '请选择省份', trigger: 'change'  },
+                    City: {  required: true, message: '请选择城市', trigger: 'change'  },
+                    District: {  required: true, message: '请选择区域', trigger: 'change'  },
+                    AddressDetail: {  required: true, message: '请填写详细位置信息', trigger: 'change'  },
+                    //Gps: {  required: true, message: '请填写GPS信息', trigger: 'change'  },
+                    Rate: {  required: true, message: '请填写严选指数', trigger: 'change'  },
+                    CoverPhoto: {  required: true, message: '请上传封面图片', trigger: 'change'  },
+                    Lables: {  required: true, message: '请添加标签', trigger: 'change'  },
+                    Postmark: { required: true, message: '请上传景点印章', trigger: 'change'  }
 				},
             activeName: 'first',
-            basedLabel: ['A级景区','AA级景区','AAA级景区','AAAA级景区'],
-            personalizedLabel: ['住宿便利','网红打卡地','珍贵物种','特定人群优惠'],
+            basedLabel: [],
+            personalizedLabel: [],
 
             //裁剪组件的基础配置option
             option: {
@@ -156,29 +186,18 @@ export default {
                 autoCropWidth: 750,             // 默认生成截图框宽度
                 autoCropHeight: 420,              // 默认生成截图框高度
                 fixed: true,                    //是否开启截图框宽高固定比例
-                fixedNumber: [16, 9],            //截图框的宽高比例
+                fixedNumber: [75, 42],            //截图框的宽高比例
             },
             isShowCropper: false,            //是否显示截图框
         }
     },
     watch: {
-      // 因为不能直接修改 props 里的属性，所以不能直接把 formData 通过v-model进行绑定
-      // 在这里我们需要监听 formData，当它发生变化时，立即将值赋给 data 里的 form
-    //   form: {
-    //     immediate: true,
-    //     handler (val) {
-    //       this.formData = val
-    //     }
-    //   }
-    },
-    created() {
 
     },
-    mounted () {
-      // props 是单向数据流，通过触发 update 事件绑定 formData，
-      // 将 data 里的 form 指向父组件通过 formData 绑定的那个对象
-      // 父组件在绑定 formData 的时候，需要加上 .sync
-      //this.$emit('update:formData', this.formData)
+    created() {
+        this.getBasedLabel();
+        this.getPersonalLabel();
+
     },
     methods: {
         //图片处理
@@ -188,9 +207,31 @@ export default {
         handleChange(file, fileList){
             //console.log("file",file)
             //上传后将图片地址赋值给裁剪框显示图片
-            this.option.img = URL.createObjectURL(file.raw);
+            //this.option.img = URL.createObjectURL(file.raw);
+            this.option.img = getObjectURL(file.raw);
             this.isShowCropper = true;
             
+        },
+
+        //上传印章
+        postMarkChange(file, fileList){
+            const that = this;
+            //console.log(file,fileList)
+
+            let reader = new FileReader();
+            let imgFile;
+ 
+            //为文件读取成功设置事件
+            reader.onload=function(e) {
+                imgFile = e.target.result;
+                console.log(imgFile)
+                that.formData.Postmark = imgFile;
+            };
+        
+            //正式读取文件
+            reader.readAsDataURL(file.raw);
+            
+
         },
 
         // 确定裁剪图片
@@ -203,8 +244,7 @@ export default {
                 this.option.img = ''
 
                 //将剪裁后base64的图片转化为file格式
-                //let file = dataURLtoFile(data,"first")
-                this.formData.coverPhoto = data;
+                this.formData.CoverPhoto = data;
             })
             
 
@@ -220,24 +260,39 @@ export default {
         tabChange(){
 
         },
+        //基础标签
+        getBasedLabel(){
+            queryBasedLabel().then(res => {
+                this.basedLabel = res.data.BaseLable
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+        //个性化标签
+        getPersonalLabel(){
+            queryPersonalLabel().then(res => {
+                this.personalizedLabel = res.data.PersonalizedLabel
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+
         addTab(val){
-           let arry = this.formData.labelList;
+           let arry = this.formData.Lables;
            let result =  arry.some(function(item,index){
                return item == val;
             });
             if(!result){
-                this.formData.labelList.push(val)
+                this.formData.Lables.push(val)
             }else{
-                this.formData.labelList.splice(arry.findIndex(item => item === val), 1)
+                this.formData.Lables.splice(arry.findIndex(item => item === val), 1)
             }
         },
 
         //下一步
         nextBtn(){
-            console.log(this.formData)
             this.$refs['basicForm'].validate((valid) => {
                 if (valid) {
-                    
                     this.$emit('activeNameChange',"second")
                 } else {
                     this.$message({
@@ -256,6 +311,27 @@ export default {
              this.$refs['basicForm'].resetFields();
         },
 
+        //省市区三联动
+        provinceChange(){
+            this.formData.City="";
+            this.formData.District="";
+            getCity(this.formData.Province).then(res => {
+                this.cityArr = res.data;
+                this.$bus.$emit("cityArr",res.data);
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+        cityChange(){
+            this.formData.District="";
+            getDistrict(this.formData.City).then(res => {
+                this.districtArr = res.data;
+                this.$bus.$emit("districtArr",res.data);
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+
     
     },
 }
@@ -271,7 +347,7 @@ export default {
     .el-select + .el-select {
                 margin-left: 10px;
     }
-    .labelList {
+    .Lables {
         .active{
             background: #2692EF;
             color: #fff;
@@ -290,6 +366,9 @@ export default {
             cursor: pointer;
         }
         
+    }
+    .toolTip{
+        color: #ccc;
     }
     .pictureTip{
         font-size: 16px;

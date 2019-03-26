@@ -25,3 +25,19 @@ export function  dataURLtoFile(dataurl, filename) {
     return new File([u8arr], filename, {type:mime});
 };
 
+//获取本地文件路径
+export function	getObjectURL(file) {
+    let url = null;
+    if (window.createObjectURL != undefined) {
+      // basic
+      url = window.createObjectURL(file);
+    } else if (window.URL != undefined) {
+      // mozilla(firefox)
+      url = window.URL.createObjectURL(file);
+    }else if (window.webkitURL != undefined) {
+      // webkit or chrome
+      url = window.webkitURL.createObjectURL(file);
+    } 
+    return url;
+  };
+

@@ -59,9 +59,9 @@
         computed: {
         userName(){
             const userInfo = getUserInfo();
-                    if(userInfo){
-                        return  userInfo.Mobil;
-                    }
+            if(userInfo){
+                return  userInfo.LoginName;
+            }
         }
         },
         methods:{

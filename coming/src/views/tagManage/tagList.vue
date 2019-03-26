@@ -3,10 +3,18 @@
         <div class="buttonList">
             <div>
                 <el-button type="primary" @click="modifyLable('1')">添加标签</el-button>
-                <el-button type="info">删除标签</el-button>
+                <!-- <el-button type="info">删除标签</el-button> -->
             </div>
             <div class="seachList">
-                <el-select v-model="type" placeholder="全部类别">
+                <el-select v-model="category" placeholder="全部类别">
+                    <el-option
+                    v-for="item in $bus.categoryList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-select v-model="type" placeholder="全部类型">
                     <el-option
                     v-for="item in $bus.typeList"
                     :key="item.value"
@@ -14,31 +22,35 @@
                     :value="item.value">
                     </el-option>
                 </el-select>
-                <el-select v-model="classes" placeholder="全部类型">
-                    <el-option
-                    v-for="item in $bus.classList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                    </el-option>
-                </el-select>
-                <el-button type="primary"  icon="el-icon-search">搜索</el-button>
+                <el-button type="primary" @click="queryTagList()" icon="el-icon-search">搜索</el-button>
             </div>
         </div>
         <div class="table">
-		    <el-table :data="tableData.Details" :height="$bus.clientHeight - 191" size="medium "
+		    <el-table :data="tableData.data" :height="$bus.clientHeight - 191" size="medium "
 		    	style="width: 100%;" v-loading="isLoading" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="60"></el-table-column>
+                <!-- <el-table-column type="selection" width="60"></el-table-column> -->
                 <el-table-column type="index" label="序号"  align="center" header-align="center" width="60"></el-table-column>
-                <el-table-column label="添加日期" min-width="120" prop="addDate" align="center" header-align="center" class-name="tdImgWrap"></el-table-column>
-                <el-table-column label="标签ID" min-width="100"  prop="labelId"  align="center" header-align="center"></el-table-column>
-                <el-table-column label="类别" min-width="120" prop="type"  align="center" header-align="center"></el-table-column>
-                <el-table-column label="标签类型" min-width="120" prop="classes" align="center" header-align="center"></el-table-column>
-                <el-table-column label="标签内容" min-width="180" prop="labelCont" align="center" header-align="center"></el-table-column>
-                <el-table-column label="标签备注" min-width="200" prop="remark"  align="left" header-align="left"></el-table-column>
+                <el-table-column label="添加日期" min-width="120" prop="Createtime" align="center" header-align="center" class-name="tdImgWrap">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.Createtime | formatDate}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="标签ID" min-width="100"  prop="Id" align="center" header-align="center"></el-table-column>
+                <el-table-column label="类别" min-width="120" prop="Category"  align="center" header-align="center">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.Category | formatCategory }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="标签类型" min-width="120" prop="Type" align="center" header-align="center">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.Type | formatType }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="标签内容" min-width="180" prop="Content" align="center" header-align="center"></el-table-column>
+                <el-table-column label="标签备注" min-width="200" prop="Remark"  align="left" header-align="left"></el-table-column>
                 <el-table-column label="操作" min-width="120" align="center" header-align="center" fixed="right">
                     <template slot-scope="scope">
-                        <el-button @click.native.prevent="modifyLable('2',scope.row,scope.$index)" type="text" >修改</el-button>
+                        <el-button @click.native.prevent="modifyLable('2',scope.row)" type="text" >修改</el-button>
                         <span class="line"></span>
                         <el-button  @click.native.prevent="deleteRow(scope.row.Id)" type="text">删除</el-button>
                     </template>
@@ -51,7 +63,7 @@
                 :page-sizes="[10, 20, 30, 40, 50, 100, 200, 300]"
                 :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper"
-                :total="tableData.TotalCount">
+                :total="tableData.total">
             </el-pagination>
 		 </div>
 		 
@@ -59,28 +71,28 @@
          <el-dialog :title="isAddFlag ? '添加标签': '修改标签'" :visible.sync="dialogFormVisible"
             @close="$refs['form'].resetFields()"  width="500px">
             <el-form :model="formData" ref="form" label-width="100px" class="form">
-                <el-form-item label="标签类别：" prop="type" :rules="{required: true, message: '请选择标签类别', trigger: 'change' }">
-                    <el-select v-model="formData.type" placeholder="请选择标签类别">
+                <el-form-item label="标签类别：" prop="Category" :rules="{required: true, message: '请选择标签类别', trigger: 'change' }">
+                    <el-select v-model="formData.Category" placeholder="请选择标签类别">
+                        <template v-for="(item,index) in $bus.categoryList">
+                            <el-option v-if="index !== 0" :key="item.value" :label="item.label" 
+                            :value="item.value"></el-option>
+                        </template>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="标签类型：" prop="Type" :rules="{required: true, message: '请选择标签类型', trigger: 'change' }">
+                    <el-select v-model="formData.Type" placeholder="请选择标签类型">
                         <template v-for="(item,index) in $bus.typeList">
                             <el-option v-if="index !== 0" :key="item.value" :label="item.label" 
                             :value="item.value"></el-option>
                         </template>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="标签类型：" prop="classes" :rules="{required: true, message: '请选择标签类型', trigger: 'change' }">
-                    <el-select v-model="formData.classes" placeholder="请选择标签类型">
-                        <template v-for="(item,index) in $bus.classList">
-                            <el-option v-if="index !== 0" :key="item.value" :label="item.label" 
-                            :value="item.value"></el-option>
-                        </template>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="标签内容：" prop="labelCont" :rules="{required: true, message: '请填写标签内容', trigger: 'change' }">
-                    <el-input type="text" v-model="formData.labelCont" placeholder="请输入标签内容" 
+                <el-form-item label="标签内容：" prop="Content" :rules="{required: true, message: '请填写标签内容', trigger: 'change' }">
+                    <el-input type="text" v-model="formData.Content" placeholder="请输入标签内容" 
                         autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="标签备注：" prop="remark">
-                    <el-input type="textarea" :row="3" v-model="formData.remark" placeholder="请输入标签备注" 
+                <el-form-item label="标签备注：" prop="Remark">
+                    <el-input type="textarea" :row="3" v-model="formData.Remark" placeholder="请输入标签备注" 
                         autocomplete="off" ></el-input>
                 </el-form-item>
             </el-form>
@@ -99,35 +111,12 @@ export default {
         return {
             isAddFlag: true,
             dialogFormVisible: false,
-            formData:{
-                type: '',
-                classes: '',
-                labelCont: '',
-                remark: ''
-            },
+            formData:{}, 
             dialogLoading: false,
-            editIndex: null,
 
-            type: '0',
-            classes: '0',
-            tableData: {
-                Details:[{
-                    addDate: '2019-01-02',
-                    labelId: 222,
-                    labelCont: 'AAAAA级景区',
-                    type: '风景区',
-                    classes: '基础标签',
-                    remark: 'vvvv',
-                },{
-                    addDate: '2019-01-02',
-                    labelId: 321,
-                    labelCont: '商业性景区',
-                    type: '娱乐',
-                    classes: '个性化标签',
-                    remark: 'vvvv',
-                }],
-                TotalCount: 1,
-            },
+            type: '-1',
+            category: '-1',
+            tableData: {},
             currentPage: 1,
 		 	pageSize: 10,
             multipleSelection: [],
@@ -135,18 +124,18 @@ export default {
         }
     },
     created() {
-       //this.queryTagList()
+       this.queryTagList()
     },
     methods: {
         handleSizeChange(val) {
             this.pageSize = val;
-            //this.queryTagList()
+            this.queryTagList()
             //console.log(`每页 ${val} 条`);
         },
         
         handleCurrentChange(val) {
             this.currentPage = val;
-            //this.queryTagList()
+            this.queryTagList()
             // console.log(`当前页: ${val}`);
         },
 
@@ -160,19 +149,21 @@ export default {
         queryTagList(){
             this.isLoading = true;
             let params = {
-                    "PageSize": this.pageSize,
-                    "Page": this.currentPage,
-                    "Type": this.type,
-                    "Classes": this.classes
+                    "Pagesize": this.pageSize,
+                    "Pageindex": this.currentPage,
+                    "Type" : this.type,
+                    "Category" : this.category
                 }
             const that = this;
             tagList(params).then(res => {
                 that.isLoading = false;
-	       		that.tableData = res.Data;
+                //console.log("99",res.data)
+                that.tableData = res;
             }).catch(error => {
                 that.isLoading = false;
                 //console.log(error)
             })
+            
         },
 
         /*确定删除标签？*/
@@ -198,7 +189,7 @@ export default {
         sureDeleteTag(id){
             let that = this;
             deleteTag(id).then(res => {
-                //that.queryTagList(); //重新加载表格
+                that.queryTagList(); //重新加载表格
                 that.$message({
                     showClose: true,
                     message: "删除成功",
@@ -212,26 +203,37 @@ export default {
         },
 
 
-        //添加或修改标签
-        modifyLable(type,data,index){
+        //添加或修改标签按钮
+        modifyLable(type,data){
             if(type == '1'){ //添加
                 this.isAddFlag = true;
                 this.formData = {
-                    type: '',
-                    classes: '',
-                    labelCont: '',
-                    remark: ''
+                    Type: '',
+                    Category: '',
+                    Content: '',
+                    Remark: ''
                 }
 
             }else{   //修改
                 this.isAddFlag = false;
-                this.editIndex = index;
                 this.formData = Object.assign({}, data) ; 
+                //标签类型
+                this.$bus.typeList.forEach(element => {
+                    if(element.value == this.formData.Type){
+                        this.formData.Type = element.value;
+                    }
+                });
+                //标签类别
+                this.$bus.categoryList.forEach(element => {
+                    if(element.value == this.formData.Category){
+                        this.formData.Category = element.value;
+                    }
+                });
             }
             this.dialogFormVisible = true;
         },
 
-        //添加
+        //提交添加
         addRow(){
             const that = this;
             createTag(that.formData).then(res => {
@@ -249,7 +251,7 @@ export default {
             })
         },
 
-        //修改
+        //提交修改
         editRow(){
             const that = this;
             editTag(that.formData).then(res => {
@@ -260,18 +262,18 @@ export default {
                     message: "修改成功",
                     type: 'success'
                 });
-                that.tableData.Details[that.editIndex] = that.formData;
+                that.queryTagList();
             }).catch(error => {
                 that.dialogLoading = false;
                 //console.log(error)
             })
         },
 
-        //提交
+        //提交按钮
         submitForm(){
             this.$refs['form'].validate((valid) => {
                 if (valid) {
-                    if(isAddFlag){  //添加
+                    if(this.isAddFlag){  //添加
                         this.addRow();
                     }else{  //修改
                         this.editRow();

@@ -234,9 +234,19 @@ header{
     line-height: 234px;
     text-align: center;
   }
+  .postMarkIcon {
+    width: 200px;
+    height: 200px;
+    line-height: 200px;
+  }
   .picture {
     width: 416px;
     height: 234px;
+    display: block;
+  }
+  .postmarkImg{
+    width: 200px;
+    height: auto;
     display: block;
   }
   .labelList{
@@ -275,4 +285,23 @@ header{
     height: 144px;
   }
 }
+
+.previewInfo{
+  .el-input.is-disabled .el-input__inner {
+    background-color: #fff;
+    border-color: transparent;
+    color: inherit;
+  }
+  .el-select .el-input .el-select__caret{
+    display: none;
+  }
+  .el-input--suffix .el-input__inner{
+    padding-right: 10px;
+    padding-left: 0;
+  }
+  .el-select .el-input.is-disabled .el-input__inner:hover{
+    border-color: transparent;
+  }
+}
+
   
